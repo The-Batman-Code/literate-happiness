@@ -4,8 +4,9 @@ version = "0.1.0"
 description = "Production-grade FastAPI boilerplate with Google ADK multi-agent architecture"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.118.0",
-    "uvicorn>=0.37.0",
+    "fastapi>=0.115.0,<0.119.0",
+    "uvicorn>=0.38.0",
+    "google-adk>=1.19.0",
 ]
 
 [build-system]
