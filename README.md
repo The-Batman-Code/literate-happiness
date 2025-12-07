@@ -1,15 +1,3 @@
-# Base Repository Structure
-
-A production-grade FastAPI boilerplate with Google ADK multi-agent architecture. This project demonstrates best practices for building scalable AI agent systems with FastAPI, including layered services, repositories, and proper resource management.
-
-**Version:** 0.1.0
-**Python:** 3.13+
-**Backend Framework:** FastAPI
-**Package Manager:** `uv` (Ultra-fast Python package installer)
-**AI Framework:** Google ADK (Agent Development Kit)
-
----
-
 ## 📢 Version 1.0 - Known Issues
 
 The current implementation of the **LinkedIn Job Research Agent (v1.0)** relies on a browser automation tool (`linkedin-mcp-server`) that requires a graphical user interface (GUI) to function. This creates significant limitations for both local development and production deployment.
