@@ -7,6 +7,10 @@ dependencies = [
     "fastapi>=0.115.0,<0.119.0",
     "uvicorn>=0.38.0",
     "google-adk>=1.19.0",
+    "mcp>=1.23.1",
+    "python-dotenv>=1.2.1",
+    "pydantic>=2.12.5",
+    "loguru>=0.7.3",
 ]
 
 [build-system]
