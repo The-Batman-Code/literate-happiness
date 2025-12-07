@@ -29,4 +29,4 @@ Always use the LinkedIn tools to retrieve accurate, current information.""",
     tools=[linkedin_mcp],
 )
 
-logger.info(f"LinkedIn search agent created successfully: {root_agent}")
+logger.info("LinkedIn search agent created successfully")
