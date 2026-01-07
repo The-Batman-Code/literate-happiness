@@ -11,6 +11,8 @@ dependencies = [
     "python-dotenv>=1.2.1",
     "pydantic>=2.12.5",
     "loguru>=0.7.3",
+    "modern-di>=1.1.0",
+    "modern-di-fastapi>=1.1.0",
 ]
 
 [build-system]

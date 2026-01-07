@@ -43,6 +43,16 @@ class Settings(BaseSettings):
         description="LinkedIn session cookie for MCP server authentication",
     )
 
+    # Adzuna API Settings
+    adzuna_app_id: SecretStr | None = Field(
+        default=None,
+        description="Adzuna API application ID",
+    )
+    adzuna_app_key: SecretStr | None = Field(
+        default=None,
+        description="Adzuna API application key",
+    )
+
     # Application Settings
     environment: str = Field(
         default="development",
