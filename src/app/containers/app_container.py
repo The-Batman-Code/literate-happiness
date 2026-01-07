@@ -5,7 +5,7 @@ Uses modern-di for managing service lifecycles and dependencies.
 
 from collections.abc import Iterator
 
-from modern_di import Group, Scope, providers
+from modern_di import AsyncContainer, Group, Scope, providers
 
 from src.app.services.adzuna.service import AdzunaService
 
@@ -35,4 +35,17 @@ class AppDependencies(Group):
     )
 
 
-__all__ = ["AppDependencies", "create_adzuna_service"]
+# Global container instance
+_container = AsyncContainer(groups=[AppDependencies])
+_container.enter()
+
+
+def get_container() -> AsyncContainer:
+    """Returns the ready-to-use global container.
+
+    Note: The container is initialized (entered) once at module load.
+    """
+    return _container
+
+
+__all__ = ["AppDependencies", "create_adzuna_service", "get_container"]

@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field, field_validator
 class AdzunaCompany(BaseModel):
     """Company information from Adzuna API."""
 
-    display_name: str = Field(..., description="Company display name")
+    display_name: str | None = Field(default=None, description="Company display name")
 
 
 class AdzunaLocation(BaseModel):
