@@ -36,7 +36,7 @@ Your responsibilities:
 Always use the appropriate tools to retrieve accurate, current information 
 from both LinkedIn and Adzuna.""",
     tools=[
-        linkedin_mcp,
+        # linkedin_mcp,
         search_adzuna_jobs,
         analyze_salary_trends,
         get_top_hiring_companies,

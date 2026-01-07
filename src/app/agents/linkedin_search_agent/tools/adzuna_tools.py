@@ -4,8 +4,6 @@ These tools wrap the Adzuna API service for use by AI agents.
 All tools are async and use dependency injection for the service instance.
 """
 
-from typing import cast
-
 from src.app.agents.linkedin_search_agent.schemas import (
     HistoricalTrendsInput,
     JobCategoriesInput,
@@ -14,7 +12,7 @@ from src.app.agents.linkedin_search_agent.schemas import (
     SalaryAnalysisInput,
     TopCompaniesInput,
 )
-from src.app.containers import AppDependencies
+from src.app.containers.app_container import AppDependencies, get_container
 from src.app.core import logger
 from src.app.schemas.adzuna import (
     AdzunaCategoriesParams,
@@ -24,7 +22,6 @@ from src.app.schemas.adzuna import (
     AdzunaSearchParams,
     AdzunaTopCompaniesParams,
 )
-from src.app.services.adzuna.service import AdzunaService
 
 
 async def search_adzuna_jobs(
@@ -60,10 +57,13 @@ async def search_adzuna_jobs(
         location=agent_input.location,
         country=agent_input.country,
     ).info(
-        "Executing Adzuna job search",
+        "Executing Adzuna job search for '{}' in {}",
+        agent_input.query,
+        agent_input.location,
     )
 
-    adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
+    container = get_container()
+    adzuna = await container.resolve_provider(AppDependencies.adzuna_service)
 
     # Map to Service Schema
     params = AdzunaSearchParams(
@@ -89,8 +89,14 @@ async def search_adzuna_jobs(
 
     for idx, job in enumerate(response.results, 1):
         output.append(f"{idx}. {job.title}")
-        output.append(f"   Company: {job.company.display_name}")
-        output.append(f"   Location: {job.location.display_name}")
+
+        company_name = job.company.display_name or "Not Specified"
+        output.append(f"   Company: {company_name}")
+
+        location_name = job.location.display_name or "Not Specified"
+        output.append(f"   Location: {location_name}")
+
+        output.append(f"   Apply Here: {job.redirect_url}")
 
         if job.salary_min and job.salary_max:
             output.append(
@@ -135,10 +141,13 @@ async def analyze_salary_trends(
         job_title=agent_input.job_title,
         location=agent_input.location,
     ).info(
-        "Analyzing Adzuna salary trends",
+        "Analyzing Adzuna salary trends for '{}' in {}",
+        agent_input.job_title,
+        agent_input.location,
     )
 
-    adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
+    container = get_container()
+    adzuna = await container.resolve_provider(AppDependencies.adzuna_service)
 
     # Map to Service Schema
     params = AdzunaHistogramParams(
@@ -208,10 +217,13 @@ async def get_top_hiring_companies(
         category=agent_input.job_category,
         location=agent_input.location,
     ).info(
-        "Fetching top hiring companies from Adzuna",
+        "Fetching top hiring companies for '{}' in {}",
+        agent_input.job_category or "all categories",
+        agent_input.location or "all locations",
     )
 
-    adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
+    container = get_container()
+    adzuna = await container.resolve_provider(AppDependencies.adzuna_service)
 
     # Map to Service Schema
     params = AdzunaTopCompaniesParams(
@@ -258,9 +270,13 @@ async def list_job_categories(country: str = "us") -> str:
     # Validate with Agent Schema
     agent_input = JobCategoriesInput(country=country)
 
-    logger.bind(country=agent_input.country).info("Listing Adzuna job categories")
+    logger.bind(country=agent_input.country).info(
+        "Listing Adzuna job categories for {}",
+        agent_input.country,
+    )
 
-    adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
+    container = get_container()
+    adzuna = await container.resolve_provider(AppDependencies.adzuna_service)
 
     # Map to Service Schema
     params = AdzunaCategoriesParams(country=agent_input.country)
@@ -309,9 +325,14 @@ async def get_regional_job_stats(
     logger.bind(
         location=agent_input.location,
         country=agent_input.country,
-    ).info("Fetching Adzuna regional stats")
+    ).info(
+        "Fetching Adzuna regional stats for '{}' in {}",
+        agent_input.location or "root",
+        agent_input.country,
+    )
 
-    adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
+    container = get_container()
+    adzuna = await container.resolve_provider(AppDependencies.adzuna_service)
 
     # Map to Service Schema
     params = AdzunaGeodataParams(
@@ -370,10 +391,14 @@ async def get_historical_salary_trends(
         location=agent_input.location,
         months=agent_input.months,
     ).info(
-        "Fetching Adzuna historical trends",
+        "Fetching Adzuna historical trends for '{}' in {} over {} months",
+        agent_input.job_title,
+        agent_input.location or "all locations",
+        agent_input.months,
     )
 
-    adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
+    container = get_container()
+    adzuna = await container.resolve_provider(AppDependencies.adzuna_service)
 
     # Map to Service Schema
     params = AdzunaHistoricalParams(
