@@ -106,6 +106,7 @@ class AdzunaService:
             Parsed JSON response
 
         Raises:
+            AdzunaAuthenticationError: If credentials are invalid
             AdzunaAPIError: If API returns error status code
             AdzunaServiceException: If request fails
         """
@@ -115,36 +116,38 @@ class AdzunaService:
         try:
             async with httpx.AsyncClient(timeout=self.TIMEOUT) as client:
                 response = await client.get(url, params=all_params)
-
-                if response.status_code == 401:
-                    logger.error("Invalid Adzuna API credentials")
-                    raise AdzunaAuthenticationError("Invalid Adzuna API credentials")
-
-                if response.status_code == 429:
-                    logger.warning("Adzuna API rate limit exceeded")
-                    raise AdzunaAPIError("Adzuna API rate limit exceeded")
-
-                if response.status_code >= 400:
-                    logger.bind(
-                        status_code=response.status_code,
-                        response_text=response.text,
-                    ).error("Adzuna API error: {} - {}", response.status_code, response.text)
-                    raise AdzunaAPIError(f"Adzuna API error: {response.status_code}")
-
-                response.raise_for_status()
-                return response.json()
-
         except httpx.TimeoutException as e:
-            logger.exception("Adzuna API request timeout after {}s", self.TIMEOUT)
-            raise AdzunaServiceException(f"Adzuna API request timeout after {self.TIMEOUT}s") from e
+            logger.exception("Adzuna API request timeout after %ss", self.TIMEOUT)
+            raise AdzunaServiceException(
+                f"Adzuna API request timeout after {self.TIMEOUT}s",
+            ) from e
         except httpx.HTTPError as e:
-            logger.exception("Adzuna API HTTP error: {}", e)
+            logger.exception("Adzuna API HTTP error: %s", e)
             raise AdzunaServiceException(f"Adzuna API HTTP error: {e}") from e
         except Exception as e:
             logger.bind(error_type=type(e).__name__).exception(
                 "Unexpected error calling Adzuna API",
             )
             raise AdzunaServiceException(f"Unexpected error calling Adzuna API: {e}") from e
+
+        # Handle API-specific errors outside the httpx try/except block to avoid
+        # swallowing custom exceptions into AdzunaServiceException
+        if response.status_code == 401:
+            logger.error("Invalid Adzuna API credentials")
+            raise AdzunaAuthenticationError("Invalid Adzuna API credentials")
+
+        if response.status_code == 429:
+            logger.warning("Adzuna API rate limit exceeded")
+            raise AdzunaAPIError("Adzuna API rate limit exceeded")
+
+        if response.status_code >= 400:
+            logger.bind(
+                status_code=response.status_code,
+                response_text=response.text,
+            ).error("Adzuna API error: %s - %s", response.status_code, response.text)
+            raise AdzunaAPIError(f"Adzuna API error: {response.status_code}")
+
+        return response.json()
 
     # ========================================================================
     # Job Search Endpoint

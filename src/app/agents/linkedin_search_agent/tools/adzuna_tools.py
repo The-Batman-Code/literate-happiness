@@ -6,6 +6,14 @@ All tools are async and use dependency injection for the service instance.
 
 from typing import cast
 
+from src.app.agents.linkedin_search_agent.schemas import (
+    HistoricalTrendsInput,
+    JobCategoriesInput,
+    JobSearchInput,
+    RegionalStatsInput,
+    SalaryAnalysisInput,
+    TopCompaniesInput,
+)
 from src.app.containers import AppDependencies
 from src.app.core import logger
 from src.app.schemas.adzuna import (
@@ -39,18 +47,31 @@ async def search_adzuna_jobs(
     Returns:
         Formatted string with job listings
     """
-    logger.bind(query=query, location=location, country=country).info(
+    # Validate with Agent Schema
+    agent_input = JobSearchInput(
+        query=query,
+        location=location,
+        country=country,
+        max_results=max_results,
+    )
+
+    logger.bind(
+        query=agent_input.query,
+        location=agent_input.location,
+        country=agent_input.country,
+    ).info(
         "Executing Adzuna job search",
     )
 
     adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
 
+    # Map to Service Schema
     params = AdzunaSearchParams(
-        what=query,
-        where=location,
-        country=country,
+        what=agent_input.query,
+        where=agent_input.location,
+        country=agent_input.country,
         page=1,
-        results_per_page=max_results,
+        results_per_page=agent_input.max_results,
     )
 
     try:
@@ -60,10 +81,10 @@ async def search_adzuna_jobs(
         return f"Error searching for jobs: {e}"
 
     if not response.results:
-        return f"No jobs found for query: {query}"
+        return f"No jobs found for query: {agent_input.query}"
 
     # Format results
-    output = [f"Found {response.count} jobs for '{query}':"]
+    output = [f"Found {response.count} jobs for '{agent_input.query}':"]
     output.append("")
 
     for idx, job in enumerate(response.results, 1):
@@ -103,16 +124,27 @@ async def analyze_salary_trends(
     Returns:
         Formatted salary analysis string
     """
-    logger.bind(job_title=job_title, location=location).info(
+    # Validate with Agent Schema
+    agent_input = SalaryAnalysisInput(
+        job_title=job_title,
+        location=location,
+        country=country,
+    )
+
+    logger.bind(
+        job_title=agent_input.job_title,
+        location=agent_input.location,
+    ).info(
         "Analyzing Adzuna salary trends",
     )
 
     adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
 
+    # Map to Service Schema
     params = AdzunaHistogramParams(
-        what=job_title,
-        where=location,
-        country=country,
+        what=agent_input.job_title,
+        where=agent_input.location,
+        country=agent_input.country,
     )
 
     try:
@@ -124,16 +156,19 @@ async def analyze_salary_trends(
         return f"Error analyzing salary trends: {e}"
 
     if not response.histogram:
-        return f"No salary data available for: {job_title}"
+        return f"No salary data available for: {agent_input.job_title}"
 
     # Format results
-    output = [f"Salary Analysis for '{job_title}':"]
+    output = [f"Salary Analysis for '{agent_input.job_title}':"]
     output.append("")
     output.append("Salary Distribution (Annual):")
 
     # Sort histogram by salary bucket (the key)
     sorted_histogram = sorted(response.histogram.items(), key=lambda x: int(x[0]))
     total_jobs = sum(response.histogram.values())
+
+    if total_jobs == 0:
+        return f"No salary data available for: {agent_input.job_title}"
 
     for salary_min, count in sorted_histogram:
         count_percent = (count / total_jobs) * 100
@@ -162,16 +197,27 @@ async def get_top_hiring_companies(
     Returns:
         Formatted list of top hiring companies
     """
-    logger.bind(category=job_category, location=location).info(
+    # Validate with Agent Schema
+    agent_input = TopCompaniesInput(
+        job_category=job_category,
+        location=location,
+        country=country,
+    )
+
+    logger.bind(
+        category=agent_input.job_category,
+        location=agent_input.location,
+    ).info(
         "Fetching top hiring companies from Adzuna",
     )
 
     adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
 
+    # Map to Service Schema
     params = AdzunaTopCompaniesParams(
-        what=job_category,
-        where=location,
-        country=country,
+        what=agent_input.job_category,
+        where=agent_input.location,
+        country=agent_input.country,
     )
 
     try:
@@ -209,11 +255,15 @@ async def list_job_categories(country: str = "us") -> str:
     Returns:
         Formatted list of job categories and their search tags
     """
-    logger.bind(country=country).info("Listing Adzuna job categories")
+    # Validate with Agent Schema
+    agent_input = JobCategoriesInput(country=country)
+
+    logger.bind(country=agent_input.country).info("Listing Adzuna job categories")
 
     adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
 
-    params = AdzunaCategoriesParams(country=country)
+    # Map to Service Schema
+    params = AdzunaCategoriesParams(country=agent_input.country)
 
     try:
         response = await adzuna.get_categories(params)
@@ -226,7 +276,7 @@ async def list_job_categories(country: str = "us") -> str:
     if not response.results:
         return "No categories available"
 
-    output = [f"Available Job Categories for {country.upper()}:"]
+    output = [f"Available Job Categories for {agent_input.country.upper()}:"]
     output.append("")
     for cat in response.results:
         output.append(f"- {cat.label} (Tag: {cat.tag})")
@@ -250,11 +300,24 @@ async def get_regional_job_stats(
     Returns:
         Formatted string with regional job counts
     """
-    logger.bind(location=location, country=country).info("Fetching Adzuna regional stats")
+    # Validate with Agent Schema
+    agent_input = RegionalStatsInput(
+        location=location,
+        country=country,
+    )
+
+    logger.bind(
+        location=agent_input.location,
+        country=agent_input.country,
+    ).info("Fetching Adzuna regional stats")
 
     adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
 
-    params = AdzunaGeodataParams(where=location, country=country)
+    # Map to Service Schema
+    params = AdzunaGeodataParams(
+        where=agent_input.location,
+        country=agent_input.country,
+    )
 
     try:
         response = await adzuna.get_geodata(params)
@@ -267,7 +330,7 @@ async def get_regional_job_stats(
     if not response.locations:
         return "No regional data available"
 
-    output = [f"Regional Job Stats for '{location or country}':"]
+    output = [f"Regional Job Stats for '{agent_input.location or agent_input.country}':"]
     output.append("")
     for loc in response.locations:
         output.append(f"- {loc.location.display_name}: {loc.count} jobs")
@@ -294,17 +357,30 @@ async def get_historical_salary_trends(
     Returns:
         Formatted historical salary trend string
     """
-    logger.bind(job_title=job_title, location=location, months=months).info(
+    # Validate with Agent Schema
+    agent_input = HistoricalTrendsInput(
+        job_title=job_title,
+        location=location,
+        country=country,
+        months=months,
+    )
+
+    logger.bind(
+        job_title=agent_input.job_title,
+        location=agent_input.location,
+        months=agent_input.months,
+    ).info(
         "Fetching Adzuna historical trends",
     )
 
     adzuna = cast(AdzunaService, await AppDependencies.adzuna_service.resolve())  # type: ignore
 
+    # Map to Service Schema
     params = AdzunaHistoricalParams(
-        what=job_title,
-        where=location,
-        country=country,
-        months=months,
+        what=agent_input.job_title,
+        where=agent_input.location,
+        country=agent_input.country,
+        months=agent_input.months,
     )
 
     try:
@@ -315,17 +391,18 @@ async def get_historical_salary_trends(
         )
         return f"Error fetching historical trends: {e}"
 
-    if not response.month:
-        return f"No historical data available for: {job_title}"
+    if not response.data:
+        return f"No historical data available for: {agent_input.job_title}"
 
-    output = [f"Historical Salary Trends for '{job_title}':"]
+    output = [f"Historical Trends for '{agent_input.job_title}':"]
     output.append("")
 
-    # Sort by month (key is YYYY-MM)
-    sorted_history = sorted(response.month.items())
-
-    for month_str, salary in sorted_history:
-        output.append(f"- {month_str}: ${salary:,.0f}")
+    # Use the structured data property which merges month and count
+    for point in response.data:
+        salary_str = f"${point.average_salary:,.0f}" if point.average_salary else "N/A"
+        output.append(
+            f"- {point.month}: Average Salary: {salary_str}, Vacancies: {point.vacancy_count}",
+        )
 
     return "\n".join(output)
 

@@ -255,6 +255,23 @@ class AdzunaHistoricalResponse(BaseModel):
         default_factory=dict,
         description="Historical average salary data (YYYY-MM as key, salary as value)",
     )
+    count: dict[str, int] = Field(
+        default_factory=dict,
+        description="Historical vacancy count data (YYYY-MM as key, count as value)",
+    )
+
+    @property
+    def data(self) -> list[AdzunaHistoricalDataPoint]:
+        """Convert split dictionaries into a list of structured data points."""
+        months = sorted(set(self.month.keys()) | set(self.count.keys()))
+        return [
+            AdzunaHistoricalDataPoint(
+                month=m,
+                average_salary=self.month.get(m),
+                vacancy_count=self.count.get(m, 0),
+            )
+            for m in months
+        ]
 
 
 # ============================================================================

@@ -62,8 +62,53 @@ class TopCompaniesInput(BaseModel):
     )
 
 
+class JobCategoriesInput(BaseModel):
+    """Input schema for listing job categories."""
+
+    country: str = Field(
+        default="us",
+        description="Country code (us, uk, de, etc.)",
+    )
+
+
+class RegionalStatsInput(BaseModel):
+    """Input schema for regional job statistics."""
+
+    location: str | None = Field(
+        default=None,
+        description="Parent location (e.g., 'California', 'Texas')",
+    )
+    country: str = Field(
+        default="us",
+        description="Country code (default: 'us')",
+    )
+
+
+class HistoricalTrendsInput(BaseModel):
+    """Input schema for historical trends tool."""
+
+    job_title: str = Field(
+        description="Job title to research (e.g., 'Software Engineer')",
+    )
+    location: str | None = Field(
+        default=None,
+        description="Location to filter (optional)",
+    )
+    country: str = Field(
+        default="us",
+        description="Country code (default: 'us')",
+    )
+    months: int = Field(
+        default=12,
+        ge=1,
+        le=24,
+        description="Number of months of history (1-24)",
+    )
+
+
 __all__ = [
     "JobSearchInput",
     "SalaryAnalysisInput",
     "TopCompaniesInput",
+    "HistoricalTrendsInput",
 ]
