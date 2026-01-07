@@ -111,4 +111,6 @@ __all__ = [
     "SalaryAnalysisInput",
     "TopCompaniesInput",
     "HistoricalTrendsInput",
+    "JobCategoriesInput",
+    "RegionalStatsInput",
 ]
