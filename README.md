@@ -1,18 +1,51 @@
+# LinkedIn Job Research Agent
+
+## 📢 Version 2.0 - Production Architecture & Market Intelligence
+
+Version 2.0 introduces a robust, production-grade architecture and integrates deep job market intelligence via the Adzuna API, while moving towards a more modular and maintainable codebase.
+
+### Key Enhancements
+
+#### **1. Adzuna Market Intelligence (6 New Tools)**
+We have integrated the Adzuna API to provide the agent with real-time job market data, expanding its capabilities beyond LinkedIn profile research.
+- **`search_adzuna_jobs`**: Real-time job search with full descriptions.
+- **`analyze_salary_trends`**: Salary distribution histograms.
+- **`get_top_hiring_companies`**: Market-leading employers by vacancy count.
+- **`list_job_categories`**: Dynamic category discovery.
+- **`get_regional_job_stats`**: Geographical job density analysis.
+- **`get_historical_salary_trends`**: 12-24 month salary trend research.
+
+#### **2. Production Dependency Injection (`modern-di`)**
+Implemented a scalable DI container using `modern-di` to manage service lifecycles.
+- **Singleton Pattern**: Services like `AdzunaService` are managed as global singletons (`Scope.APP`).
+- **Resource Management**: Uses generators (`yield`) for safe initialization and cleanup of connections.
+- **Type Safety**: Full integration with static analysis (Pyright/Mypy) for better developer experience.
+
+#### **3. Structured Logging (`loguru`)**
+Moved away from simple print statements to structured, performance-optimized logging.
+- **Contextual Data**: Uses `logger.bind()` to attach metadata (query, location, etc.) to log entries.
+- **Lazy Interpolation**: Uses `{}` placeholders to prevent unnecessary string formatting.
+- **Error Tracking**: Automatic stack trace capturing with `logger.exception()`.
+
+#### **4. Developer Experience & Debugging**
+- **Conflict Resolution**: Renamed internal tools (e.g., `search_adzuna_jobs`) to avoid naming collisions with external MCP servers (like `linkedin-mcp-server`).
+- **Integrated Debugging**: Added `.vscode/launch.json` for Cursor/VS Code, allowing step-by-step debugging of agent tools and sub-processes.
+
+---
+
 ## 📢 Version 1.0 - Known Issues
 
-The current implementation of the **LinkedIn Job Research Agent (v1.0)** relies on a browser automation tool (`linkedin-mcp-server`) that requires a graphical user interface (GUI) to function. This creates significant limitations for both local development and production deployment.
+The initial implementation of the **LinkedIn Job Research Agent (v1.0)** relies on a browser automation tool (`linkedin-mcp-server`) that requires a graphical user interface (GUI) to function.
 
 ### Why It Fails
 
 #### **1. Local Development (WSL2)**
-
-- **Problem:** WSL2 (Windows Subsystem for Linux), a common development environment, does not have a native graphical display server.
-- **Impact:** ChromeDriver (used by the agent) needs a display to render the browser, so it fails to initialize in WSL2. This makes local testing and development difficult.
+- **Problem:** WSL2 does not have a native graphical display server.
+- **Impact:** ChromeDriver fails to initialize in WSL2, making local testing difficult without complex X11 forwarding.
 
 #### **2. Production Deployment (Cloud Run / Serverless)**
-
-- **Problem:** Serverless environments like Google Cloud Run are lightweight and do not include a pre-installed browser (like Chrome/Chromium) or a graphical interface.
+- **Problem:** Serverless environments are lightweight and lack browser binaries or graphical interfaces.
 - **Impact:**
-  - **Bloated Container:** Including Chrome in the deployment package would increase the container image size by over 500MB, which violates serverless principles of being lightweight and fast-scaling.
-  - **Resource Constraints:** The limited CPU and memory in serverless environments are not suitable for running a full browser instance.
-  - **Conclusion:** The agent, in its current form, **will not work** in a production serverless environment.
+  - **Bloated Container:** Including Chrome increases image size by >500MB.
+  - **Resource Constraints:** Limited CPU/Memory are unsuitable for browser automation.
+  - **Conclusion:** Browser-based automation is not recommended for serverless production. Version 2.0 begins the transition to API-first research tools.

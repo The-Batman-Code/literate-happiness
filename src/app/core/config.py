@@ -43,6 +43,16 @@ class Settings(BaseSettings):
         description="LinkedIn session cookie for MCP server authentication",
     )
 
+    # Adzuna API Settings
+    adzuna_app_id: SecretStr | None = Field(
+        default=None,
+        description="Adzuna API application ID",
+    )
+    adzuna_app_key: SecretStr | None = Field(
+        default=None,
+        description="Adzuna API application key",
+    )
+
     # Application Settings
     environment: str = Field(
         default="development",
@@ -78,6 +88,14 @@ class Settings(BaseSettings):
                 msg = "GOOGLE_CLOUD_PROJECT is required when using Vertex AI"
                 raise ValueError(msg)
 
+            if not self.adzuna_app_id or not self.adzuna_app_id.get_secret_value():
+                msg = "ADZUNA_APP_ID is required in production"
+                raise ValueError(msg)
+
+            if not self.adzuna_app_key or not self.adzuna_app_key.get_secret_value():
+                msg = "ADZUNA_APP_KEY is required in production"
+                raise ValueError(msg)
+
     def __str__(self) -> str:
         """String representation that hides secrets."""
         linkedin_status = "set" if self.linkedin_cookie else "not set"
@@ -88,7 +106,9 @@ class Settings(BaseSettings):
             f"debug={self.debug}, "
             "google_api_key=***MASKED***, "
             f"google_use_vertexai={self.google_use_vertexai}, "
-            f"linkedin_cookie={linkedin_status}"
+            f"linkedin_cookie={linkedin_status}, "
+            "adzuna_app_id=***MASKED***, "
+            "adzuna_app_key=***MASKED***"
             ")"
         )
 

@@ -85,6 +85,8 @@ dependencies = [
     { name = "google-adk" },
     { name = "loguru" },
     { name = "mcp" },
+    { name = "modern-di" },
+    { name = "modern-di-fastapi" },
     { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "uvicorn" },
@@ -96,6 +98,8 @@ requires-dist = [
     { name = "google-adk", specifier = ">=1.19.0" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "mcp", specifier = ">=1.23.1" },
+    { name = "modern-di", specifier = ">=1.1.0" },
+    { name = "modern-di-fastapi", specifier = ">=1.1.0" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "uvicorn", specifier = ">=0.38.0" },
@@ -391,16 +395,16 @@ wheels = [
 
 [[package]]
 name = "google-auth"
-version = "2.45.0"
+version = "2.46.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cachetools" },
     { name = "pyasn1-modules" },
     { name = "rsa" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e5/00/3c794502a8b892c404b2dea5b3650eb21bfc7069612fbfd15c7f17c1cb0d/google_auth-2.45.0.tar.gz", hash = "sha256:90d3f41b6b72ea72dd9811e765699ee491ab24139f34ebf1ca2b9cc0c38708f3", size = 320708, upload-time = "2025-12-15T22:58:42.889Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4c/6d/dd93ee542979b681c9a5d33970033807beb5114e6194365464581fefaa3e/google_auth-2.46.0.tar.gz", hash = "sha256:cb04c071a73394a6e3b9e48c1a7f48506001175b33e9679587a0f5320a21a34d", size = 321766, upload-time = "2026-01-05T21:31:47.421Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c6/97/451d55e05487a5cd6279a01a7e34921858b16f7dc8aa38a2c684743cd2b3/google_auth-2.45.0-py2.py3-none-any.whl", hash = "sha256:82344e86dc00410ef5382d99be677c6043d72e502b625aa4f4afa0bdacca0f36", size = 233312, upload-time = "2025-12-15T22:58:40.777Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/54/b03b568bff5748fd62327a1e36f40dcfa436eaf592fd7a481aa8bd4a3ee7/google_auth-2.46.0-py3-none-any.whl", hash = "sha256:fa51659c3745cb7024dd073f4ab766222767ea5f7dee2472110eaa03c9dbd2cb", size = 233748, upload-time = "2026-01-05T21:31:45.839Z" },
 ]
 
 [package.optional-dependencies]
@@ -1094,6 +1098,28 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/44/1c/ccf35892684d3a408202e296e56843743e0b4fb1629e59432ea88cdb3909/mmh3-5.2.0-cp314-cp314t-win32.whl", hash = "sha256:6d541038b3fc360ec538fc116de87462627944765a6750308118f8b509a8eec7", size = 41970, upload-time = "2025-07-29T07:43:27.666Z" },
     { url = "https://files.pythonhosted.org/packages/75/b2/b9e4f1e5adb5e21eb104588fcee2cd1eaa8308255173481427d5ecc4284e/mmh3-5.2.0-cp314-cp314t-win_amd64.whl", hash = "sha256:e912b19cf2378f2967d0c08e86ff4c6c360129887f678e27e4dde970d21b3f4d", size = 43063, upload-time = "2025-07-29T07:43:28.582Z" },
     { url = "https://files.pythonhosted.org/packages/6a/fc/0e61d9a4e29c8679356795a40e48f647b4aad58d71bfc969f0f8f56fb912/mmh3-5.2.0-cp314-cp314t-win_arm64.whl", hash = "sha256:e7884931fe5e788163e7b3c511614130c2c59feffdc21112290a194487efb2e9", size = 40455, upload-time = "2025-07-29T07:43:29.563Z" },
+]
+
+[[package]]
+name = "modern-di"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fe/62/399849189cb7ae242e74c2ca4016c405f42017805e26806ed3ccf9473238/modern_di-1.1.0.tar.gz", hash = "sha256:46055ba00c5dda3e4566ef0f25e020c0338276a8c9d80988862a8aba145e467e", size = 7459, upload-time = "2026-01-03T09:48:20.505Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a0/68/8d781f1126c968fc4adbcab9696d0c0c14955023b449d4637cae7fbcf765/modern_di-1.1.0-py3-none-any.whl", hash = "sha256:5a4b1cc8fa8e9962906d0bed094324625d3f5d060fdb516de886f5c0316cb739", size = 17783, upload-time = "2026-01-03T09:48:19.323Z" },
+]
+
+[[package]]
+name = "modern-di-fastapi"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "modern-di" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1a/80/a1a998a4afa38a7d450e7d4795a7a031a5960c83bc063b680c62fb8fa648/modern_di_fastapi-1.1.0.tar.gz", hash = "sha256:f53d3a9edbb517cc154f45e3a3bfca5996393135a2b5f57982e9ef99dac4e64f", size = 2118, upload-time = "2026-01-03T09:48:22.307Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4f/c7/1dc35ae03b7726a4a7e2845af888a778bcc1690fb2170ee797911ab48e63/modern_di_fastapi-1.1.0-py3-none-any.whl", hash = "sha256:ba2f355103cc874332202b76706dc1b96126e18ccbb7c33b880a7d3ebea3e4e5", size = 2610, upload-time = "2026-01-03T09:48:23.057Z" },
 ]
 
 [[package]]
