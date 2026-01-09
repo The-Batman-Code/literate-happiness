@@ -17,7 +17,7 @@ B2B platform on Google Cloud Run/GKE. SQLAlchemy + Redis Cloud.
 7. **EXPLAIN APPROACH**: Describe plan before implementing.
 8. **ABSOLUTE IMPORTS**: `from src.app.X import Y` always.
 9. **DUAL PYDANTIC**: `response_model=` AND return type.
-10. **LOG CRITICAL OPS**: External calls, exceptions, state changes. Use `%s`, NOT f-strings.
+10. **LOG CRITICAL OPS**: External calls, exceptions, state changes. Use `{}`, NOT f-strings.
 
 ---
 
@@ -103,14 +103,14 @@ from typing import cast
 
 @router.post("")
 async def create_user(data: UserCreate) -> UserResponse:
-    service = cast(UserService, await AppDependencies.user_service.resolve())
+    service = cast(UserService, await container.resolve_provider(AppDependencies.user_service))
     return await service.create_user(data)
 
 # Lifespan (main.py)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with Container(scope=Scope.APP) as container:
-        await AppDependencies.db_session.async_resolve(container)
+        await container.resolve_provider(AppDependencies.db_session)
         yield
 ```
 
@@ -118,13 +118,13 @@ async def lifespan(app: FastAPI):
 
 ## Logging Standards
 
-### Use %s Placeholders
+### Use {} Placeholders
 ```python
 # ❌ WRONG - allocates memory always
 logger.info(f"Processing {user_id}")
 
 # ✅ CORRECT - lazy evaluation
-logger.info("Processing %s", user_id)
+logger.info("Processing {}", user_id)
 ```
 
 ### Patterns
@@ -133,12 +133,12 @@ logger.info("Processing %s", user_id)
 logger.info("User created")
 
 # Structured context
-logger.bind(user_id=str(user_id)).info("Payment for: %s", user_id)
+logger.bind(user_id=str(user_id)).info("Payment for: {}", user_id)
 
 # Multiple logs same context
 with logger.contextualize(request_id=req_id):
-    logger.info("Started: %s", req_id)
-    logger.info("Completed: %s", req_id)
+    logger.info("Started: {}", req_id)
+    logger.info("Completed: {}", req_id)
 
 # Exceptions - ALWAYS include error_type
 try:
@@ -166,7 +166,7 @@ class UserRepository:
 
     async def create(self, email: str) -> User:
         try:
-            logger.bind(email=email).info("Creating user: %s", email)
+            logger.bind(email=email).info("Creating user: {}", email)
             user = User(email=email)
             self.session.add(user)
             await self.session.flush()
@@ -184,7 +184,7 @@ class UserRepository:
 
 ### Redis Lock (Cross-Container)
 ```python
-lock_key = "user:create:%s" % email
+lock_key = f"user:create:{email}"
 try:
     async with redis_manager.lock(lock_key, timeout=10):
         user = await repo.get_by_email(email)
@@ -239,13 +239,13 @@ async def create_user_with_profile(session: AsyncSession, email: str, data: dict
 @router.post("", response_model=UserResponse, status_code=201)
 async def create_user(data: UserCreate) -> UserResponse:
     try:
-        logger.bind(email=data.email).info("Creating user: %s", data.email)
-        service = cast(UserService, await AppDependencies.user_service.resolve())
+        logger.bind(email=data.email).info("Creating user: {}", data.email)
+        service = cast(UserService, await container.resolve_provider(AppDependencies.user_service))
         user = await service.create_user(data)
-        logger.bind(user_id=str(user.id)).info("Created: %s", user.id)
+        logger.bind(user_id=str(user.id)).info("Created: {}", user.id)
         return user
     except ValueError as e:
-        logger.warning("Validation failed: %s", str(e))
+        logger.warning("Validation failed: {}", str(e))
         raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.bind(error_type=type(e).__name__).exception("Failed")
@@ -305,7 +305,7 @@ display = utc_datetime.astimezone(ZoneInfo(user.timezone))
 ✅ **DO**:
 - Think performance: O(n) > O(n²), dict lookups, batch ops
 - Repository pattern for data access
-- %s placeholders in logs
+- {} placeholders in logs
 - Log external APIs, exceptions, state changes
 - `error_type` in exception logs
 - `from e` to preserve chain

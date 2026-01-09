@@ -117,12 +117,12 @@ class AdzunaService:
             async with httpx.AsyncClient(timeout=self.TIMEOUT) as client:
                 response = await client.get(url, params=all_params)
         except httpx.TimeoutException as e:
-            logger.exception("Adzuna API request timeout after %ss", self.TIMEOUT)
+            logger.exception("Adzuna API request timeout after {}s", self.TIMEOUT)
             raise AdzunaServiceException(
                 f"Adzuna API request timeout after {self.TIMEOUT}s",
             ) from e
         except httpx.HTTPError as e:
-            logger.exception("Adzuna API HTTP error: %s", e)
+            logger.exception("Adzuna API HTTP error: {}", e)
             raise AdzunaServiceException(f"Adzuna API HTTP error: {e}") from e
         except Exception as e:
             logger.bind(error_type=type(e).__name__).exception(
@@ -144,7 +144,7 @@ class AdzunaService:
             logger.bind(
                 status_code=response.status_code,
                 response_text=response.text,
-            ).error("Adzuna API error: %s - %s", response.status_code, response.text)
+            ).error("Adzuna API error: {} - {}", response.status_code, response.text)
             raise AdzunaAPIError(f"Adzuna API error: {response.status_code}")
 
         return response.json()
@@ -182,7 +182,10 @@ class AdzunaService:
             endpoint=endpoint,
             what=params.what,
             where=params.where,
-        ).info("Searching Adzuna jobs")
+        ).info(
+            "Searching Adzuna jobs at endpoint: {}",
+            endpoint,
+        )
 
         try:
             data = await self._make_request(endpoint, query_params)
@@ -222,7 +225,10 @@ class AdzunaService:
             exclude_none=True,
         )
 
-        logger.bind(endpoint=endpoint).info("Fetching salary histogram")
+        logger.bind(endpoint=endpoint).info(
+            "Fetching salary histogram from endpoint: {}",
+            endpoint,
+        )
 
         try:
             data = await self._make_request(endpoint, query_params)
@@ -263,7 +269,9 @@ class AdzunaService:
         )
 
         logger.bind(endpoint=endpoint, months=params.months).info(
-            "Fetching historical data",
+            "Fetching historical data from endpoint: {} over {} months",
+            endpoint,
+            params.months,
         )
 
         try:
@@ -304,7 +312,10 @@ class AdzunaService:
             exclude_none=True,
         )
 
-        logger.bind(endpoint=endpoint).info("Fetching geodata")
+        logger.bind(endpoint=endpoint).info(
+            "Fetching geodata from endpoint: {}",
+            endpoint,
+        )
 
         try:
             data = await self._make_request(endpoint, query_params)
@@ -344,7 +355,10 @@ class AdzunaService:
             exclude_none=True,
         )
 
-        logger.bind(endpoint=endpoint).info("Fetching top companies")
+        logger.bind(endpoint=endpoint).info(
+            "Fetching top companies from endpoint: {}",
+            endpoint,
+        )
 
         try:
             data = await self._make_request(endpoint, query_params)
@@ -384,7 +398,10 @@ class AdzunaService:
             exclude_none=True,
         )
 
-        logger.bind(endpoint=endpoint).info("Fetching categories")
+        logger.bind(endpoint=endpoint).info(
+            "Fetching categories from endpoint: {}",
+            endpoint,
+        )
 
         try:
             data = await self._make_request(endpoint, query_params)
