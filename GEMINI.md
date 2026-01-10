@@ -300,7 +300,57 @@ display = utc_datetime.astimezone(ZoneInfo(user.timezone))
 
 ---
 
-## Key Reminders
+## Security Rules
+
+### Rate Limiting
+```python
+from fastapi import Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
+
+@router.post("/login")
+@limiter.limit("5/minute")  # IP-based
+async def login(request: Request, data: LoginRequest):
+    ...
+```
+
+### Input Validation
+```python
+# ✅ GOOD - Pydantic validates automatically
+class UserCreate(BaseModel):
+    email: EmailStr  # Type validation
+    name: str = Field(min_length=1, max_length=100)  # Length limits
+    age: int = Field(ge=0, le=150)  # Range validation
+    
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        extra="forbid",  # Reject unexpected fields
+    )
+```
+
+### API Keys & Secrets
+```python
+# ❌ WRONG
+API_KEY = "sk-1234567890abcdef"
+
+# ✅ CORRECT
+from src.app.core.config import settings
+api_key = settings.external_api.key.get_secret_value()
+```
+
+**NEVER**:
+- Hard-code keys/secrets
+- Commit `.env` files
+- Log sensitive data
+
+**ALWAYS**:
+- Use environment variables
+- Rotate keys regularly
+- Use `SecretStr` in Pydantic models
+
+---
 
 ✅ **DO**:
 - Think performance: O(n) > O(n²), dict lookups, batch ops
