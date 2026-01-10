@@ -3,7 +3,7 @@
 -e .
 aiosqlite==0.22.1
     # via google-adk
-alembic==1.17.2
+alembic==1.18.0
     # via sqlalchemy-spanner
 annotated-doc==0.0.4
     # via fastapi
@@ -104,7 +104,7 @@ google-auth-httplib2==0.3.0
     # via google-api-python-client
 google-cloud-aiplatform==1.133.0
     # via google-adk
-google-cloud-appengine-logging==1.7.0
+google-cloud-appengine-logging==1.8.0
     # via google-cloud-logging
 google-cloud-audit-log==0.4.0
     # via google-cloud-logging
@@ -328,7 +328,7 @@ proto-plus==1.27.0
     #   google-cloud-spanner
     #   google-cloud-speech
     #   google-cloud-trace
-protobuf==6.33.2
+protobuf==6.33.3
     # via
     #   google-api-core
     #   google-cloud-aiplatform

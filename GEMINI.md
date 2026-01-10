@@ -302,6 +302,8 @@ display = utc_datetime.astimezone(ZoneInfo(user.timezone))
 
 ## Security Rules
 
+**CRITICAL**: Follow OWASP Top 10 guidelines. All code must prevent injection, broken auth, XSS, CSRF, and security misconfigurations.
+
 ### Rate Limiting
 ```python
 from fastapi import Request
@@ -340,15 +342,44 @@ from src.app.core.config import settings
 api_key = settings.external_api.key.get_secret_value()
 ```
 
+### SQL Injection Prevention
+```python
+# ✅ GOOD - SQLAlchemy ORM prevents injection
+user = await session.execute(
+    select(User).where(User.email == email)  # Parameterized
+)
+
+# ❌ NEVER use raw SQL with string formatting
+query = f"SELECT * FROM users WHERE email = '{email}'"  # VULNERABLE
+```
+
+### CSRF & CORS
+```python
+# Configure CORS properly
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://yourdomain.com"],  # Specific domains, not "*"
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
+```
+
 **NEVER**:
 - Hard-code keys/secrets
 - Commit `.env` files
-- Log sensitive data
+- Log sensitive data (passwords, tokens, PII)
+- Use `allow_origins=["*"]` in production
+- Build SQL with string concatenation
 
 **ALWAYS**:
 - Use environment variables
 - Rotate keys regularly
 - Use `SecretStr` in Pydantic models
+- Sanitize all user inputs (Pydantic handles this)
+- Use parameterized queries (ORM does this)
 
 ---
 
