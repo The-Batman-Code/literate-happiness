@@ -4,7 +4,7 @@ These tools wrap the Adzuna API service for use by AI agents.
 All tools are async and use dependency injection for the service instance.
 """
 
-from src.app.agents.linkedin_search_agent.schemas import (
+from src.app.agents.job_search_agent.schemas import (
     HistoricalTrendsInput,
     JobCategoriesInput,
     JobSearchInput,

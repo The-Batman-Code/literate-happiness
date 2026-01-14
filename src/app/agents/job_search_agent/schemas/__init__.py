@@ -1,6 +1,6 @@
 """LinkedIn search agent schemas."""
 
-from src.app.agents.linkedin_search_agent.schemas.tool_inputs import (
+from src.app.agents.job_search_agent.schemas.tool_inputs import (
     HistoricalTrendsInput,
     JobCategoriesInput,
     JobSearchInput,

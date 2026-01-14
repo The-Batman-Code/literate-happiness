@@ -1,6 +1,6 @@
 """LinkedIn search agent tools."""
 
-from src.app.agents.linkedin_search_agent.tools.adzuna_tools import (
+from src.app.agents.job_search_agent.tools.adzuna_tools import (
     analyze_salary_trends,
     get_historical_salary_trends,
     get_regional_job_stats,
@@ -8,7 +8,7 @@ from src.app.agents.linkedin_search_agent.tools.adzuna_tools import (
     list_job_categories,
     search_adzuna_jobs,
 )
-from src.app.agents.linkedin_search_agent.tools.mcp_servers import (
+from src.app.agents.job_search_agent.tools.mcp_servers import (
     get_linkedin_mcp_server,
 )
 
