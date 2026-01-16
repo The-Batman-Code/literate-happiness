@@ -1,6 +1,8 @@
 """LinkedIn search agent factory."""
 
 from google.adk.agents import Agent
+from google.adk.agents.context_cache_config import ContextCacheConfig
+from google.adk.apps import App
 
 from src.app.agents.job_search_agent.prompts import (
     get_job_search_description,
@@ -41,4 +43,15 @@ root_agent = Agent(
     ],
 )
 
-logger.info("Job search agent created successfully")
+# Option 1: Wrap agent in App with Context Cache Config for UI testing
+# Setting min_tokens to 100 for easier verification with shorter instructions
+app = App(
+    name="job_search_agent",
+    root_agent=root_agent,
+    context_cache_config=ContextCacheConfig(
+        min_tokens=100,
+        ttl_seconds=600,
+    ),
+)
+
+logger.info("Job search agent and App with Caching created successfully")
